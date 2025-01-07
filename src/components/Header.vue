@@ -162,9 +162,8 @@ export default {
       return input.slice(0, length) + '...'
     },
 
-    openLink(_item) {
-      this.tab = '/dapp'
-      window.open(_item.link)
+    open(link) {
+      window.open(link)
     },
     async switchAccount(walletItem) {
       await storage.switchWallet(walletItem.p1, JSON.parse(JSON.stringify(walletItem.p2)), walletItem.walletName, storage.getHighestWalletVersion())
