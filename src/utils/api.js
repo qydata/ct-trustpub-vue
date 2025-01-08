@@ -3,8 +3,8 @@
 // that can be found in the LICENSE.md file. All rights reserved.
 
 /*global process*/
-const INDEX_API_URL = process.env.VUE_APP_INDEX_API_URL
-// const INDEX_API_URL = 'https://wallet.ctblock.cn/api/v1'
+// const INDEX_API_URL = process.env.VUE_APP_INDEX_API_URL
+const INDEX_API_URL = 'https://wallet.ctblock.cn/api/v1'
 
 const BASE_URL = process.env.VUE_APP_BASE_URL
 const BASE_API = process.env.VUE_APP_BASE_API

@@ -15,6 +15,7 @@
             prepend-avatar="/assets/browser-wallet.svg">
             <template v-slot:title>浏览器钱包</template>
             <template v-slot:subtitle>浏览器钱包是管理数字资产并连接区块链应用的工具。</template>
+
             <template v-slot:append>
               <v-btn :loading="isUnlockLoading" rounded="xl" size="large"
                      v-if="connectStatus === 'onboarding'" class="" disabled>
@@ -34,6 +35,9 @@
             </template>
           </v-list-item>
         </v-list>
+        <v-chip size="x-large" color="error" v-if="connectError" variant="text">
+          {{ connectError }}
+        </v-chip>
       </v-container>
     </v-card>
   </v-dialog>
@@ -101,11 +105,11 @@ export default {
       // https://eips.ethereum.org/EIPS/eip-1193#user-account-exposure-and-account-changes
       const [ethAddress] = accounts
       if (ethAddress === undefined) {
-        this.connectError = 'No Ethereum address found.'
+        this.connectError = '未找到钱包地址。'
         this.connectStatus = ''
         return
       }
-      if (ethAddress === this.ethAddress) return
+      // if (ethAddress === this.ethAddress) return
 
       if (flag) {
 
@@ -127,7 +131,7 @@ export default {
       try {
         this.isUnlockLoading = true
         // do not specify wallet version here - this forces migration to highest version
-        await setWalletAddress(ethAddress)
+
         this.$store.commit('setAddress', ethAddress)
         // await storage.setWalletVersion(storage.getHighestWalletVersion())
         this.$store.commit('unlock')
@@ -148,17 +152,15 @@ export default {
 
         // 获取连接的钱包地址
         const address = await signer.getAddress()
-        this.fetchAllData(request).then(cardList => {
-          console.log('cardList:', cardList)
-          setCardList(address, cardList).then(() => {
-            console.log('Object stored successfully!')
-          }).catch(err => {
-            console.error('Failed to store object:', err)
-          })
+        this.fetchAllData(request).then(async cardList => {
+          await setCardList(address, cardList)
+          await setWalletAddress(ethAddress)
+          this.afterUnlock()
         })
-        this.afterUnlock()
-      } catch (e) {
-        console.log(e)
+      } catch (err) {
+        console.log(err)
+        this.connectError = err.message
+        this.connectStatus = ''
       } finally {
         this.isUnlockLoading = false
       }
@@ -171,7 +173,7 @@ export default {
     setChainId(chainId) {
       // https://eips.ethereum.org/EIPS/eip-1193#chain-changes
       if (networks[chainId] === undefined) {
-        this.connectError = 'Unsupported network. Please use Ethereum Mainnet or Rinkeby Test Network.'
+        this.connectError = '不支持的网络。请使用草田链。'
         this.connectStatus = ''
         return
       }
@@ -189,7 +191,7 @@ export default {
         // https://eips.ethereum.org/EIPS/eip-695
         this.setChainId(await window.ethereum.request({method: 'eth_chainId'}))
         window.ethereum.on('chainChanged', this.setChainId)
-
+        console.log('accounts:', accounts)
         this.setAccounts(accounts, true)
         window.ethereum.on('accountsChanged', this.setAccounts)
 

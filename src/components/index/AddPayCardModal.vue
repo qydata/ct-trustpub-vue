@@ -364,12 +364,8 @@ export default {
             timestamp: currentTime
           })
           // console.log('cardList:', cardList)
-          setCardList(wallet.address, cardList).then(() => {
-            console.log('Object stored successfully!')
-            this.afterCharge()
-          }).catch(err => {
-            console.error('Failed to store object:', err)
-          })
+          await setCardList(this.address, cardList)
+          this.afterCharge()
         }
         else {
           this.$message.error(r.message)
@@ -386,7 +382,7 @@ export default {
     copyToClipboard(input) {
       if (!this.canCopy) window.alert('剪贴板不可用。请手动复制粘贴。')
       return navigator.clipboard.writeText(input)
-    },
+    }
 
   },
 
