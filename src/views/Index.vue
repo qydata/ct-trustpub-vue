@@ -17,10 +17,8 @@
     <ConnectModal
       :afterUnlock="gotoOverview"
       :close="resetAuto"
-      :switchToForgetModal="openForgetModal"
       :visible="true" v-if="modal === 'unlock'"
     />
-    <ForgetModal :afterForget="reset" :close="resetAuto" :visible="true" v-if="modal === 'forget'"/>
     <RestoreModal :afterRestore="gotoOverview" :close="reset" :visible="true" v-if="modal === 'restore'"/>
   </v-container>
 </template>
@@ -36,7 +34,6 @@ export default {
   name: 'ViewIndex',
   title: '连接钱包',
   components: {
-    ForgetModal,
     Logo,
     RestoreModal,
     ConnectModal
@@ -58,9 +55,6 @@ export default {
       }
 
       this.$router.push('overview')
-    },
-    openForgetModal() {
-      this.modal = 'forget'
     },
     reset() {
       this.modal = ''

@@ -28,7 +28,7 @@
       </v-tooltip>
     </template>
     <template v-slot:item._chainpayOrder_trues="{ item }">
-      <v-tooltip :text="item._chainpayOrder_trues" location="top">
+      <v-tooltip :text="item._chainpayOrder_trues.toString()" location="top">
         <template v-slot:activator="{ props }">
           <span v-bind="props" class="text-green-500">
           {{ item._chainpayOrder_trues.length }}
@@ -36,7 +36,7 @@
         </template>
       </v-tooltip>
       <br/>
-      <v-tooltip :text="item._chainpayOrder_falses" location="top">
+      <v-tooltip :text="item._chainpayOrder_falses.toString()" location="top">
         <template v-slot:activator="{ props }">
           <span v-bind="props" class="text-red-500">
           {{ item._chainpayOrder_falses.length }}

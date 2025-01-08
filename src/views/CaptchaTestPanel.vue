@@ -7,8 +7,6 @@
 </template>
 
 <script>
-// import VueHcaptcha from '@hcaptcha/vue3-hcaptcha'
-// import VueClicaptch from 'vue-clicaptcha'
 import VueClicaptcha from 'vue-clicaptcha'
 import {mapState} from 'vuex'
 

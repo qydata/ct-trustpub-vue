@@ -7,38 +7,34 @@
             v-model="localVisible">
     <v-card title="欢迎来到链上付" subtitle="从连接到一个钱包来开始">
 
-      <v-divider/>
-      <v-card>
-        <v-list-item/>
-        <v-list-item>
-          <template v-slot:prepend>
-            <v-avatar color="grey-lighten-1">
-              <v-img src="/assets/browser-wallet.svg" color="white"/>
-            </v-avatar>
-          </template>
-          <template v-slot:default>浏览器钱包</template>
-          <template v-slot:append>
+      <v-container>
+        <v-list variant="tonal" lines="three">
 
-            <v-btn :loading="isUnlockLoading" rounded="xl" size="large"
-                   v-if="connectStatus === 'onboarding'" class="" disabled>
-              正在等待...
-            </v-btn>
-            <v-btn :loading="isUnlockLoading" rounded="xl" size="large"
-                   v-else-if="connectStatus === 'connecting'" class="" disabled>
-              正在连接...
-            </v-btn>
-            <v-btn :loading="isUnlockLoading" rounded="xl" size="large" v-else-if="hasMetaMask"
-                   class="" @click="connect">连接
-            </v-btn>
-            <v-btn :loading="isUnlockLoading" rounded="xl" size="large" v-else
-                   class=""
-                   :disabled="!browserSupport">当前环境不支持
-            </v-btn>
-          </template>
-        </v-list-item>
-        <v-divider/>
-        <v-list-item/>
-      </v-card>
+          <v-list-item
+            rounded="xl"
+            prepend-avatar="/assets/browser-wallet.svg">
+            <template v-slot:title>浏览器钱包</template>
+            <template v-slot:subtitle>浏览器钱包是管理数字资产并连接区块链应用的工具。</template>
+            <template v-slot:append>
+              <v-btn :loading="isUnlockLoading" rounded="xl" size="large"
+                     v-if="connectStatus === 'onboarding'" class="" disabled>
+                正在等待...
+              </v-btn>
+              <v-btn :loading="isUnlockLoading" rounded="xl" size="large"
+                     v-else-if="connectStatus === 'connecting'" class="" disabled>
+                正在连接...
+              </v-btn>
+              <v-btn :loading="isUnlockLoading" rounded="xl" size="large" v-else-if="hasMetaMask"
+                     class="" @click="connect">连接
+              </v-btn>
+              <v-btn :loading="isUnlockLoading" rounded="xl" size="large" v-else
+                     class=""
+                     :disabled="!browserSupport">当前环境不支持
+              </v-btn>
+            </template>
+          </v-list-item>
+        </v-list>
+      </v-container>
     </v-card>
   </v-dialog>
 </template>
@@ -77,7 +73,6 @@ export default {
   props: {
     afterUnlock: Function,
     close: Function,
-    switchToForgetModal: Function,
     visible: {
       type: Boolean,
       default: false

@@ -144,9 +144,15 @@
             </v-list-item>
 
             <v-list-item title="到">
-              <template v-slot:subtitle>
-                <div>{{ payType.card_name }}</div>
-                <div>{{ payType.card_id }}</div>
+              <template v-slot:default>
+                <v-row>
+                  <v-col cols="auto">
+                    <v-list-item variant="tonal" rounded="lg">
+                      <div>{{ payType.card_name }}</div>
+                      <div>{{ payType.card_id }}</div>
+                    </v-list-item>
+                  </v-col>
+                </v-row>
               </template>
             </v-list-item>
             <v-list-item
@@ -224,10 +230,14 @@
             </v-list-item>
 
             <v-list-item title="到">
-              <template v-slot:subtitle>
-                <div>{{ payType.card_name }}</div>
-                <div>{{ payType.card_id }}</div>
-              </template>
+              <v-row>
+                <v-col cols="auto">
+                  <v-list-item variant="tonal" rounded="lg">
+                    <div>{{ payType.card_name }}</div>
+                    <div>{{ payType.card_id }}</div>
+                  </v-list-item>
+                </v-col>
+              </v-row>
             </v-list-item>
 
             <v-list-item title="手续费">
@@ -315,8 +325,6 @@ export default {
 
       exchangeRate: {},
       gasRates: {},
-      iExchangeRate: null,
-      iGasRates: null,
 
       amount: '',
       amountRules: [
@@ -432,19 +440,7 @@ export default {
       this.localVisible1 = v && this.step == 1
       this.localVisible2 = v && this.step == 2
       this.localVisible3 = v && this.step == 3
-      if (v) {
-        this.$store.dispatch('refresh')
-        this.updateExchangeRate()
-        this.updateGasRates()
-        this.iExchangeRate = setInterval(this.updateExchangeRate, exchangeRateUpdateInterval)
-        this.iGasRates = setInterval(this.updateGasRates, gasRatesUpdateInterval)
-      }
-      else {
-        clearInterval(this.iExchangeRate)
-        clearInterval(this.iGasRates)
-        this.iExchangeRate = null
-        this.iGasRates = null
-      }
+
     }
   },
   async mounted() {
@@ -458,6 +454,8 @@ export default {
         this.payType = this.payTypeArr[0]
       }
     }
+    this.updateExchangeRate()
+    this.updateGasRates()
   },
   methods: {
 

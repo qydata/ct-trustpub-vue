@@ -15,7 +15,7 @@
 
 <script>
 import {mapState} from 'vuex'
-import {getWalletAddress} from './utils/storage'
+import {getWalletAddress, setCardList, setWalletAddress} from './utils/storage'
 
 // 在App.vue中
 export default {
@@ -34,11 +34,15 @@ export default {
     // 检测是否为移动端
     const walletAddr = await getWalletAddress()
     if (walletAddr) {
+      // 这里首先判断钱包链接状态
       this.$store.commit('setAddress', walletAddr)
     }
+
   },
   // 返回清理函数
-  methods: {}
+  methods: {
+
+  }
 }
 </script>
 

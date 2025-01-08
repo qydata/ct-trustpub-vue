@@ -10,90 +10,101 @@
 
       <template v-slot:title>
 
-        <div v-if="step === -1">
+        <div v-if="step === stepThree">
           充值声明
         </div>
-        <div v-else-if="step === 1">
+        <div v-else-if="step === stepOne">
           充值余额
         </div>
-        <div v-else-if="step === 2">
+        <div v-else-if="step === stepTwo">
           充值余额
         </div>
-        <div v-else-if="step === 3">
+        <div v-else-if="step === stepFour">
           充值已接受
         </div>
       </template>
       <template v-slot:subtitle>
-        <div v-if="step === -1">
+        <div v-if="step === stepThree">
           <Amount :value="xctBalance" :decimalPlaces="2" currency="RMB"/>
           可用
         </div>
-        <div v-else-if="step === 1">
+        <div v-else-if="step === stepOne">
           <span class="sub-heading d-block text-gray text-caption">
           <Amount :value="xctBalance" :decimalPlaces="2" currency="RMB"/> 可用
         </span>
 
         </div>
-        <div v-else-if="step === 2">
+        <div v-else-if="step === stepTwo">
           <Amount :value="xctBalance" currency="RMB" :decimalPlaces="2"/>
           可用
         </div>
-        <div v-else-if="step === 3"></div>
+        <div v-else-if="step === stepFour"></div>
 
         <v-stepper
-          :items="['扣款', '声明', '完成']"
+          :items="['充值', '扣款','声明',  '充值已接受']"
           v-model="step"
           alt-labels
           hide-actions
         >
 
-          <div v-if="step === -1" v-loading="loading" :element-loading-text="loadingText">
-            <div class="py-32 border-t border-gray-700 border-opacity-30">
-              <!-- eslint-disable-next-line max-len -->
+          <v-list v-if="step === stepThree" v-loading="loading" :element-loading-text="loadingText">
+            <v-list-item>
+              <v-row>
+                <!-- eslint-disable-next-line max-len -->
+                <v-col cols="6">
+                  <v-btn color="primary" variant="tonal" size="large" block :disabled="loading"
+                         @click="() => goto(stepOne)">返回
+                  </v-btn>
+                </v-col>
+                <v-col cols="6">
+                  <v-btn color="primary" block :disabled="!canBuy" size="large" :loading="loading" @click="Declare">
+                    确认
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-list-item>
+            <v-list-item v-if="submitError">
+              <template v-slot:subtitle>
+                发生了错误 ({{ submitError }})。 请再试一次。
+              </template>
+            </v-list-item>
+          </v-list>
+          <v-list v-else-if="step === stepOne" lines="six">
 
-              <v-list-item v-if="submitError">
-                <template v-slot:subtitle>
-                  发生了错误 ({{ submitError }})。 请再试一次。
-                </template>
-              </v-list-item>
+            <v-list-item>
+              <v-form ref="myForm1">
+                <v-list-item
+                >
+                  <v-text-field
+                    v-model="recipient"
+                    readonly
+                    :rules="recipientRules"
+                    autocomplete="off"
+                    label="充值至*"
+                    type="text"
+                    required
+                  />
+                </v-list-item>
+                <v-list-item
+                >
+                  <v-text-field
+                    v-model="amount"
+                    :rules="amountRules"
+                    autocomplete="off"
+                    label="数量"
+                    type="text"
+                    required
+                    clearable>
+                    <template v-slot:append>
+                      rmb
+                    </template>
 
-            </div>
-          </div>
+                  </v-text-field>
+                </v-list-item>
 
-          <v-list v-else-if="step === 1" lines="six">
+              </v-form>
 
-            <v-form ref="myForm1">
-              <v-list-item
-              >
-                <v-text-field
-                  v-model="recipient"
-                  readonly
-                  :rules="recipientRules"
-                  autocomplete="off"
-                  label="充值至*"
-                  type="text"
-                  required
-                />
-              </v-list-item>
-              <v-list-item
-              >
-                <v-text-field
-                  v-model="amount"
-                  :rules="amountRules"
-                  autocomplete="off"
-                  label="数量"
-                  type="text"
-                  required
-                  clearable>
-                  <template v-slot:append>
-                    rmb
-                  </template>
-
-                </v-text-field>
-              </v-list-item>
-
-            </v-form>
-
+            </v-list-item>
             <v-list-item
               title="手续费"
             >
@@ -108,8 +119,48 @@
                 <Amount :value="fee" currency="rmb" short sub/>
               </template>
             </v-list-item>
+
+            <v-list-item>
+              <v-row justify="center" align="center">
+                <v-col cols="4">
+                  <v-img
+                    height="40" width="40"
+                    src="/assets/usd-coin-cny-logo.svg"
+                    alt="CT Wallet"/>
+                  您正在充值
+                  <br/>
+                  <Amount :value="amountParsed" currency="CNY" short/>
+                </v-col>
+                <v-col cols="4" class="text-center">
+                  <v-icon size="x-large" :icon="ArrowRightIcon"/>
+                </v-col>
+                <v-col cols="4" align="right">
+                  <v-img
+                    :width="60" :height="40" src="/assets/e-logo-alt.svg" alt="image description "/>
+                  您将收到
+                  <br/>
+                  <Amount :value="edgeAmount" currency="RMB"/>
+                </v-col>
+              </v-row>
+            </v-list-item>
+            <v-list-item/>
+            <v-list-item>
+              <v-row>
+                <v-col cols="6">
+                  <v-btn variant="tonal" size="large" block @click="cancel">返回</v-btn>
+                </v-col>
+                <v-col cols="6">
+                  <v-btn
+                    @click="readyWithdraw" size="large"
+                    color="primary" block
+                  >充值
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-list-item>
+
           </v-list>
-          <v-list v-else-if="step === 2" v-loading="loading" :element-loading-text="loadingText">
+          <v-list v-else-if="step === stepTwo" v-loading="loading" :element-loading-text="loadingText">
             <v-list-item title="您正在充值">
               <template v-slot:subtitle>
                 <Amount :value="amount" currency="CNY" sub/>
@@ -131,10 +182,14 @@
               </v-radio-group>
             </v-list-item>
             <v-list-item title="从">
-              <template v-slot:subtitle>
-                <div>{{ payType.card_name }}</div>
-                <div>{{ payType.card_id }}</div>
-              </template>
+              <v-row>
+                <v-col cols="auto">
+                  <v-list-item variant="tonal" rounded="lg">
+                    <div>{{ payType.card_name }}</div>
+                    <div>{{ payType.card_id }}</div>
+                  </v-list-item>
+                </v-col>
+              </v-row>
             </v-list-item>
             <v-list-item title="To">
               <template v-slot:subtitle>
@@ -170,107 +225,7 @@
               </template>
             </v-list-item>
             <v-list-item/>
-          </v-list>
-          <v-list v-else-if="step === 3">
-
-            <v-list-item title="您正在充值">
-              <template v-slot:subtitle>
-                <Amount :value="completedTx.amount" currency="CNY" short sub/>
-              </template>
-            </v-list-item>
-
-            <v-list-item title="从">
-              <template v-slot:subtitle>
-                <div>{{ payType.card_name }}</div>
-                <div>{{ payType.card_id }}</div>
-              </template>
-            </v-list-item>
-
-
-            <v-list-item title="到">
-              <template v-slot:subtitle>
-                <HashLink to="etherscan" :wallet="completedTx.data.destination"/>
-              </template>
-            </v-list-item>
-
-            <v-list-item title="手续费">
-              <template v-slot:subtitle>
-                <Amount :value="feeOnSubmit" currency="CT" short sub/>
-              </template>
-            </v-list-item>
-
-            <v-list-item title="您将收到">
-              <template v-slot:subtitle>
-                <Amount :value="edgeAmount" currency="RMB" sub/>
-              </template>
-            </v-list-item>
-
-            <v-list-item title="交易哈希">
-              <template v-slot:subtitle>
-                <HashLink to="explorer" :transaction="completedTx.hash" truncated/>
-              </template>
-            </v-list-item>
             <v-list-item>
-              <small class="text-caption text-medium-emphasis">您的请求已被接受，应该很快被处理。</small>
-            </v-list-item>
-          </v-list>
-
-          <div>
-            <div v-if="step === -1">
-              <v-row>
-                <!-- eslint-disable-next-line max-len -->
-                <v-col cols="6">
-                  <v-btn color="primary" block :disabled="loading" @click="() => goto(1)">返回
-                  </v-btn>
-                </v-col>
-                <v-col cols="6">
-                  <v-btn class="w-full v-btn v-btn--success" :disabled="!canBuy" @click="Declare">确认</v-btn>
-                </v-col>
-              </v-row>
-            </div>
-            <div v-else-if="step === 1">
-
-              <v-list-item>
-                <v-row justify="center" align="center">
-                  <v-col cols="4">
-                    <v-img
-                      height="40" width="40"
-                      src="/assets/usd-coin-cny-logo.svg"
-                      alt="CT Wallet"/>
-                    您正在充值
-                    <br/>
-                    <Amount :value="amountParsed" currency="CNY" short/>
-                  </v-col>
-                  <v-col cols="4" class="text-center">
-                    <v-icon size="x-large" :icon="ArrowRightIcon"/>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-img
-                      height="40"
-                      class="" src="/assets/e-logo-alt.svg" alt="image description"/>
-                    您将收到
-                    <br/>
-                    <Amount :value="edgeAmount" currency="RMB"/>
-                  </v-col>
-                </v-row>
-              </v-list-item>
-              <v-list-item/>
-              <v-row>
-                <v-col cols="6">
-                  <v-btn variant="tonal" size="large" block @click="cancel">返回</v-btn>
-                </v-col>
-                <v-col cols="6">
-                  <v-btn
-                    @click="readyWithdraw" size="large"
-                    color="primary" block
-                  >充值
-                  </v-btn>
-                </v-col>
-              </v-row>
-
-            </div>
-            <div v-else-if="step === 2">
-              <!-- eslint-disable-next-line max-len -->
               <v-form ref="myForm2">
                 <v-text-field
                   v-model="mobile"
@@ -323,37 +278,75 @@
                   <!--                           sitekey="a0bce798-5c05-4ab9-96ae-d15863e4e5fa"-->
                   <!--                           @verify="onVerify"></VueHcaptcha>-->
 
-                  <VueClicaptcha
-                    v-if="show" :callback="callback" :src="src"/>
-                  <div class=" form-group grid col-span-12 grid-cols-12 mb-4 "
-                       :class="{'form-group__error': v$.isVerifys.$error}">
-                    <!-- eslint-disable-next-line max-len -->
-                    <div class="form-group__error input-error col-start-6 col-span-5"
-                         v-for="error of v$.isVerifys.$errors"
-                         :key="error.$uid">
-                      {{ error.$message }}
-                    </div>
-                  </div>
+
                 </v-row>
               </v-form>
+            </v-list-item>
+            <v-list-item>
               <v-row align="center" justify="center">
                 <v-col cols="6">
-                  <v-btn variant="tonal" size="large" block :disabled="loading" @click="() => goto(1)">返回
+                  <v-btn variant="tonal" size="large" block :disabled="loading" @click="() => goto(stepOne)">返回
                   </v-btn>
                 </v-col>
                 <v-col cols="6">
-                  <v-btn size="large" color="primary" block :disabled="loading" @click="Chargebacks">确认</v-btn>
+                  <v-btn size="large" color="primary" block :loading="loading" @click="Chargebacks">确认</v-btn>
                 </v-col>
               </v-row>
-            </div>
-            <div v-else-if="step === 3">
-              <v-btn block color="primary" size="large" @click="cancel">关闭
-              </v-btn>
-            </div>
-          </div>
+            </v-list-item>
+          </v-list>
+          <v-list v-else-if="step === stepFour">
+
+            <v-list-item title="您正在充值">
+              <template v-slot:subtitle>
+                <Amount :value="completedTx.amount" currency="CNY" short sub/>
+              </template>
+            </v-list-item>
+
+            <v-list-item title="从">
+              <v-row>
+                <v-col cols="auto">
+                  <v-list-item variant="tonal" rounded="lg">
+                    <div>{{ payType.card_name }}</div>
+                    <div>{{ payType.card_id }}</div>
+                  </v-list-item>
+                </v-col>
+              </v-row>
+            </v-list-item>
+
+            <v-list-item title="到">
+              <template v-slot:subtitle>
+                <HashLink to="etherscan" :wallet="completedTx.data.destination"/>
+              </template>
+            </v-list-item>
+
+            <v-list-item title="手续费">
+              <template v-slot:subtitle>
+                <Amount :value="feeOnSubmit" currency="CT" short sub/>
+              </template>
+            </v-list-item>
+
+            <v-list-item title="您将收到">
+              <template v-slot:subtitle>
+                <Amount :value="edgeAmount" currency="RMB" sub/>
+              </template>
+            </v-list-item>
+
+            <v-list-item title="交易哈希">
+              <template v-slot:subtitle>
+                <HashLink to="explorer" :transaction="completedTx.hash" truncated/>
+              </template>
+            </v-list-item>
+            <v-list-item>
+              <small class="text-caption text-medium-emphasis">您的请求已被接受，应该很快被处理。</small>
+            </v-list-item>
+            <v-btn block color="primary" size="large" @click="cancel">关闭
+            </v-btn>
+          </v-list>
         </v-stepper>
       </template>
     </v-card>
+    <VueClicaptcha
+      v-if="show" :callback="callback" :src="src"/>
   </v-dialog>
 </template>
 <script>
@@ -362,7 +355,7 @@ import {fetchGasRates} from '@/utils/api'
 import {parseAmount} from '@/utils/form'
 import {ArrowRightIcon} from '@heroicons/vue/outline'
 import {LockOpenIcon, EyeIcon, EyeOffIcon} from '@heroicons/vue/outline'
-
+import VueClicaptcha from 'vue-clicaptcha'
 import useVuelidate from '@vuelidate/core'
 import {required as _required, helpers} from '@vuelidate/validators'
 import {mapState} from 'vuex'
@@ -376,13 +369,12 @@ const _addressC = require('@/config/address.json')
 const ethers = require('ethers')
 const ethUtil = require('ethereumjs-util')
 
-const gasRatesUpdateInterval = 15 * 1000
-
 export default {
   name: 'WithdrawModal',
   components: {
     Amount,
-    HashLink
+    HashLink,
+    VueClicaptcha
   },
   props: {
     close: Function,
@@ -391,9 +383,13 @@ export default {
   data() {
     return {
       step: 1,
+      stepOne: 1,
+      stepTwo: 2,
+      stepThree: 3,
+      stepFour: 4,
+
       localVisible: this.visible,
       gasRates: {},
-      iGasRates: null,
 
       recipient: '',
       recipientRules: [
@@ -501,7 +497,7 @@ export default {
       return parseAmount(this.amount)
     },
     canBuy() {
-      return !this.v$.$invalid && this.edgeAmount > 0
+      return this.edgeAmount > 0
     },
     gasRate() {
       return this.gasRates.fee
@@ -526,16 +522,6 @@ export default {
     },
     async visible(v, oldv) {
       if (v === oldv) return
-      if (v) {
-        this.$store.dispatch('refresh')
-        this.updateGasRates()
-        this.iGasRates = setInterval(this.updateGasRates, gasRatesUpdateInterval)
-
-      }
-      else {
-        clearInterval(this.iGasRates)
-        this.iGasRates = null
-      }
     }
   },
   async mounted() {
@@ -547,6 +533,7 @@ export default {
       this.payType = this.payTypeArr[0]
       this.mobile = this.payType.mobile
     }
+    this.updateGasRates()
   },
   methods: {
     callback(val) {
@@ -579,7 +566,7 @@ export default {
         this.countTime()
         // sendTelCode({tel: this.mobile, hcaptcha: this.hcaptchaResp}).then(res => {
         //   console.log(res)
-        //   if (res.code !== 1) {
+        //   if (res.code !== 2) {
         //     this.$message.error(res.msg)
         //   }
         //   else {
@@ -602,44 +589,13 @@ export default {
       }
       window.setTimeout(this.countTime, 1000)
     },
-    getSteps() {
-      switch (this.step) {
-      case 1:
-      case 2:
-        return {
-          active: 0,
-          process: 'finish',
-          finish: 'success'
-        }
-      case -1:
-        return {
-          active: 1,
-          process: 'finish',
-          finish: 'success'
-        }
-      case 3:
-        return {
-          active: 3,
-          process: 'finish',
-          finish: 'success'
-        }
-      default:
-        return {
-          active: 0
-        }
-      }
-    },
-    setPayType(type) {
-      this.payType = type
-      this.mobile = this.payType.mobile
-    },
     cancel() {
       this.reset()
       this.close()
     },
 
     goto(step) {
-      if (step == 1) {
+      if (step == this.stepTwo) {
         this.loading = false
         this.loadingText = ''
       }
@@ -648,17 +604,17 @@ export default {
     async readyWithdraw() {
       const {valid, errors} = await this.$refs.myForm1.validate()
       if (!valid) return
-      // validate only step 1
+      // validate only step this.stepTwo
 
       if (this.payTypeArr.length == 0) {
         this.$message.error('暂无支付方式,请先在我的支付中添加')
         return
       }
 
-      this.goto(2)
+      this.goto(this.stepTwo)
     },
     reset() {
-      this.goto(1)
+      this.goto(this.stepOne)
 
       this.amount = ''
       this.amount = ''
@@ -678,10 +634,10 @@ export default {
       const {valid, errors} = await this.$refs.myForm2.validate()
       if (!valid) return
       this.loading = true
-      this.loadingText = '请求银行网关支付中'
-      // TODO 请求银行网关支付
+      this.$message.success('请求银行网关支付中')
+      // TODO 请求银行网关支付 这里需要后台验证验证码还有其他的
       setTimeout(() => {
-        this.goto(-1)
+        this.goto(this.stepThree)
         this.cleanLoad()
       }, 2000)
     },
@@ -728,11 +684,16 @@ export default {
             token: 'RMB'
           }
         }
-        this.goto(3)
+        this.goto(this.stepFour)
         this.cleanLoad()
       } catch (err) {
         console.error(err)
-        this.proErrMessage(err.errorArgs[0])
+        if (err.errorArgs) {
+          this.submitError = this.proErrMessage(err.errorArgs[0])
+        }
+        else {
+          this.submitError = err
+        }
         this.cleanLoad()
       }
     },

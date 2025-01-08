@@ -36,9 +36,11 @@ import Header from '@/components/Header'
 import TrueAndFalsePublicityModal from '@/components/publicity/TrueAndFalsePublicityModal'
 import PublicityTable from '@/components/PublicityTable'
 
+const ethers = require('ethers')
 import AccountPanel from '@/components/AccountPanel'
 import {InfoFilled, Connection, EditPen, Menu} from '@element-plus/icons-vue'
 import {ArrowDownIcon, ArrowUpIcon, ClipboardCopyIcon} from '@heroicons/vue/outline'
+import {setCardList, setWalletAddress} from '../utils/storage'
 
 export default {
   name: 'ViewStaking',
@@ -68,7 +70,26 @@ export default {
       return Math.max(1, Math.ceil(this.metadata.totalCount / this.limit))
     }
   },
+  mounted() {
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', this.lock)
+    }
+  },
   methods: {
+
+    lock(accounts) {
+      const [ethAddress] = accounts
+      if (ethAddress === undefined) {
+        this.connectError = 'No Ethereum address found.'
+        this.connectStatus = ''
+        return
+      }
+      if (ethAddress === this.ethAddress) return
+
+      this.$store.dispatch('forget')
+      this.$store.commit('lock')
+      this.$router.push('/')
+    },
     closeTruePublicityModal() {
       this.publicity = null
       this.showTrueAndFalsePublicityModal = false
