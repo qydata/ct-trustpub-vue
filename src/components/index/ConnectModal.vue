@@ -97,7 +97,7 @@ export default {
     }
   },
   methods: {
-    setAccounts(accounts) {
+    setAccounts(accounts, flag) {
       // https://eips.ethereum.org/EIPS/eip-1193#user-account-exposure-and-account-changes
       const [ethAddress] = accounts
       if (ethAddress === undefined) {
@@ -107,18 +107,21 @@ export default {
       }
       if (ethAddress === this.ethAddress) return
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      if (flag) {
 
-      this.ethAddress = ethAddress
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
 
-      this.contract = new ethers.Contract(
-        _addressC['XCT'],
-        ABI_const['XCT'].abi,
-        provider.getSigner(0)
-      )
+        this.ethAddress = ethAddress
 
-      this.updateXctBalance()
-      this.signOp(provider, ethAddress)
+        this.contract = new ethers.Contract(
+          _addressC['XCT'],
+          ABI_const['XCT'].abi,
+          provider.getSigner(0)
+        )
+
+        this.updateXctBalance()
+        this.signOp(provider, ethAddress)
+      }
     },
     async signOp(provider, ethAddress) {
       try {
@@ -187,7 +190,7 @@ export default {
         this.setChainId(await window.ethereum.request({method: 'eth_chainId'}))
         window.ethereum.on('chainChanged', this.setChainId)
 
-        this.setAccounts(accounts)
+        this.setAccounts(accounts, true)
         window.ethereum.on('accountsChanged', this.setAccounts)
 
       } catch (err) {
