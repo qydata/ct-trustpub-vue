@@ -6,7 +6,7 @@
   "JOBCONTRACT_ADDRESS": "0x9b655BaD81E202f829E2b94508AE4969a000CcDd",
   "AUTH_CONTROLLER_SYSTEM_ADDRESS": "0x21366DB44c5C6Aebe8fE6005B3F599E561100740",
   "MULT_CALL": "0x523FEF729440B418B44198aA5DEbe5a4fFe0eCAf",
-  "CLICAPTCHA_URL": "https://test.ctsign.cn/api/clicaptcha.php",
+  "CLICAPTCHA_URL": "https://tool.ctblock.cn/api/clicaptcha.php",
   "CAN_AUTH": false,
   "IPFS": [
     {
