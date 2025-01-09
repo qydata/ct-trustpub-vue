@@ -131,7 +131,7 @@ import VueClicaptcha from 'vue-clicaptcha'
 import {mapState} from 'vuex'
 import {fetchCardlist, postBindcard} from '../../utils/api'
 import {setCardList} from '../../utils/storage'
-
+const GlobalConfig = require('@/config/GlobalConfig.json')
 const ethers = require('ethers')
 import {LockOpenIcon, ShieldExclamationIcon, EyeIcon, EyeOffIcon} from '@heroicons/vue/outline'
 
@@ -220,7 +220,7 @@ export default {
         }
       ],
       show: false,
-      src: 'https://wallet.ctblock.cn/api/clicaptcha.php',
+      src: '',
       nextTime: 0,
       hcaptchaResp: null,
 
@@ -246,6 +246,7 @@ export default {
     })
     this.cardType = this.cardTypes[0]
     this.payType = this.payTypeArr[0]
+    this.src = GlobalConfig.CLICAPTCHA_URL
   },
 
   methods: {
@@ -341,11 +342,6 @@ export default {
         other: {
           msgcode: this.msg_code,
           hcaptchaResp: this.hcaptchaResp
-          // hcaptchaResp: {
-          //   'info': '95,44-204,84-174,41-56,61;319;200',
-          //   'status': true,
-          //   'src': 'https://wallet.ctblock.cn/api/clicaptcha.php'
-          // }
         },
         // 这里用来存储验证码信息, 包括验证码, 滑块, 等信息
         address: this.address,

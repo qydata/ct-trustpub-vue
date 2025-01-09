@@ -9,6 +9,7 @@
 <script>
 import VueClicaptcha from 'vue-clicaptcha'
 import {mapState} from 'vuex'
+const GlobalConfig = require('@/config/GlobalConfig.json')
 
 export default {
   name: 'CaptchaTestPanel',
@@ -21,9 +22,7 @@ export default {
   computed: mapState(['address', 'balance', 'cnyBalance']),
   data() {
     return {
-      // src: 'http://127.0.0.1:8000/clicaptcha.php',
-      // src: 'https://manager.ctblock.cn/api/clicaptcha.php',
-      src: 'http://127.0.0.1:8000/clicaptcha.php',
+      src: '',
       show: true,
       modal: '',
       tabindex: '0',
@@ -41,6 +40,7 @@ export default {
   watch: {},
   mounted() {
     const that = this
+    this.src = GlobalConfig.CLICAPTCHA_URL
     window.setTimeout(() => {
       that.tabindex = '1'
     }, 5000)

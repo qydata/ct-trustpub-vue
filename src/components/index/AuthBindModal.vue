@@ -185,8 +185,7 @@ export default {
   },
   data() {
     return {
-      // src: 'http://127.0.0.1:8000/clicaptcha.php',
-      src: 'https://wallet.ctblock.cn/api/clicaptcha.php',
+      src: '',
       show: false,
       privateKey: '',
       publicKey: '',
@@ -572,7 +571,7 @@ export default {
     }
   },
   async mounted() {
-
+    this.src = GlobalConfig.CLICAPTCHA_URL
   },
   setup() {
     return {

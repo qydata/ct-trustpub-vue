@@ -368,6 +368,7 @@ const ABI_const = require('@/contract/ABI_const.js')
 const _addressC = require('@/config/address.json')
 const ethers = require('ethers')
 const ethUtil = require('ethereumjs-util')
+const GlobalConfig = require('@/config/GlobalConfig.json')
 
 export default {
   name: 'WithdrawModal',
@@ -470,7 +471,7 @@ export default {
       ],
       isVerifys: false,
       show: false,
-      src: 'https://wallet.ctblock.cn/api/clicaptcha.php',
+      src: '',
       loading: false,
       loadingText: ''
     }
@@ -526,6 +527,7 @@ export default {
   },
   async mounted() {
     this.recipient = this.address
+    this.src = GlobalConfig.CLICAPTCHA_URL
     const cardList = await getCardList()
     console.log(cardList)
     if (cardList) {
